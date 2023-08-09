@@ -1,0 +1,40 @@
+.Appbar {
+  display: flex;
+  justify-content: space-between;
+  min-width: max-content;
+  padding: 10px;
+}
+
+.Button-Group {
+  display: flex;
+  gap: 20px;
+
+  .Button {
+    padding: 10px 20px 10px 20px;
+    border-end-end-radius: 40%;
+    color: cornsilk;
+    font-size: medium;
+  }
+}
+
+.drawer {
+  .drawer-title {
+    font-size: 20px;
+    margin-top: 50px;
+    padding-left: 35px;
+  }
+  .drawer-items {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+  }
+  .drawer-button {
+    color: black;
+    font-size: large;
+    text-transform: capitalize;
+    padding-right: 50px;
+    padding-left: 20px;
+    width: max-content;
+  }
+}

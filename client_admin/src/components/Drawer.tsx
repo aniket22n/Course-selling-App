@@ -1,4 +1,4 @@
-import { atomUser } from "../store/email";
+import { atomUser } from "../store/atoms/user";
 import { useRecoilValue } from "recoil";
 import {
   Drawer,
@@ -9,14 +9,14 @@ import {
   ListItemButton,
   ListItem,
 } from "@mui/material";
-import { homeIcon, courseIcon, purchaseIcon, settingsIcon } from "./content";
+import { homeIcon, courseIcon, createCourse, settingsIcon } from "./content";
 import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
 export function DrawerComponent() {
   const redirect = useNavigate();
-  const user = useRecoilValue(atomUser);
+  const userValue = useRecoilValue(atomUser);
   return (
     <Drawer
       className="drawer"
@@ -39,23 +39,29 @@ export function DrawerComponent() {
         <ListItem disablePadding>
           <ListItemButton
             className="drawer-button"
-            onClick={() => redirect("/")}
+            onClick={() => redirect("/admin")}
           >
             {homeIcon}
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton className="drawer-button">
+          <ListItemButton
+            className="drawer-button"
+            onClick={() => redirect("/admin/courses")}
+          >
             {courseIcon}
           </ListItemButton>
         </ListItem>
-        {user && (
+        {!userValue.isLoading && userValue.user.username != "" && (
           <div>
             <Divider variant="middle" />
             <List className="drawer-items">
               <ListItem disablePadding>
-                <ListItemButton className="drawer-button">
-                  {purchaseIcon}
+                <ListItemButton
+                  className="drawer-button"
+                  onClick={() => redirect("/admin/addcourse")}
+                >
+                  {createCourse}
                 </ListItemButton>
               </ListItem>
               <ListItem disablePadding>

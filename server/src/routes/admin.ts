@@ -1,6 +1,10 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { ADMIN_SECRET_KEY as KEY, authenticateAdmin } from "../middlewares";
+import {
+  ADMIN_SECRET_KEY,
+  ADMIN_SECRET_KEY as KEY,
+  authenticateAdmin,
+} from "../middlewares";
 import { Admin, Course } from "../db";
 import { z } from "zod";
 
@@ -23,7 +27,7 @@ type LoginType = z.infer<typeof LoginZOD>;
 const CourseInput = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
-  price: z.number().min(1),
+  price: z.number().min(0),
   image: z.string().min(1),
   published: z.boolean(),
 });
@@ -48,7 +52,9 @@ router.post("/signup", async (req, res) => {
     const newAdmin = new Admin(Input);
     const status = await newAdmin.save();
     const token = jwt.sign({ id: status._id }, KEY, { expiresIn: "1hr" });
-    return res.status(200).json({ message: "Success", token: token });
+    return res
+      .status(200)
+      .json({ message: "Success", token: token, user: isUser });
   }
   return res.json({ message: "Signup failed, try again", token: null });
 });
@@ -62,7 +68,9 @@ router.post("/login", async (req, res) => {
 
     if (isUser) {
       const token = jwt.sign({ id: isUser._id }, KEY, { expiresIn: "1hr" });
-      return res.status(200).json({ message: "Success", token: token });
+      return res
+        .status(200)
+        .json({ message: "Success", token: token, user: isUser });
     }
   }
   return res.json({ message: "Login failed, try again", token: null });
@@ -127,14 +135,38 @@ router.put("/updateCourse/:Id", authenticateAdmin, async (req, res) => {
 });
 
 //Show All courses to user
-router.get("/courses", authenticateAdmin, async (req, res) => {
+router.get("/courses", async (req, res) => {
   try {
-    const courses = await Course.find({});
-    if (courses.length > 0) res.status(200).json(courses);
-    else res.status(200).json({ message: "No courses found" });
+    const courses: CourseType[] = await Course.find({});
+    if (courses.length > 0) res.status(200).json({ courses: courses });
+    else res.status(404).json({ courses: [] });
   } catch (error) {
     console.log("Failed to retrive courses form database");
     res.status(500).json({ message: "Failed to retrive courses" });
+  }
+});
+
+const tokenCheck = z.object({
+  authorization: z.string().min(1),
+});
+
+router.get("/me", async (req, res) => {
+  const authorization = tokenCheck.safeParse(req.headers);
+  if (authorization.success) {
+    const token = authorization.data.authorization.split(" ")[1];
+    jwt.verify(token, ADMIN_SECRET_KEY, async (err, payload) => {
+      if (err) return res.json({ admin: false });
+
+      if (!payload || typeof payload == "string") {
+        //payload should neither be undefined nor a string.
+        return res.json({ admin: false });
+      } else {
+        const adminData = await Admin.findOne({ _id: payload.id });
+        return res.json(adminData);
+      }
+    });
+  } else {
+    return res.json({ admin: false });
   }
 });
 

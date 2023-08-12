@@ -3,8 +3,8 @@ import {
   ImageOutlined,
   HomeRounded,
   SchoolRounded,
-  BackpackRounded,
   SettingsRounded,
+  EditNoteRounded,
 } from "@mui/icons-material";
 import { Typography } from "@mui/material";
 
@@ -46,9 +46,9 @@ export const courseIcon = (
   </div>
 );
 
-export const purchaseIcon = (
+export const createCourse = (
   <div style={{ display: "flex", gap: "15px", padding: "10px" }}>
-    <BackpackRounded /> My learning
+    <EditNoteRounded /> Create Course
   </div>
 );
 

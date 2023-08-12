@@ -31,7 +31,7 @@ const LoginZOD = zod_1.z.object({
 const CourseInput = zod_1.z.object({
     title: zod_1.z.string().min(1),
     description: zod_1.z.string().min(1),
-    price: zod_1.z.number().min(1),
+    price: zod_1.z.number().min(0),
     image: zod_1.z.string().min(1),
     published: zod_1.z.boolean(),
 });
@@ -50,9 +50,11 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         const newAdmin = new db_1.Admin(Input);
         const status = yield newAdmin.save();
         const token = jsonwebtoken_1.default.sign({ id: status._id }, middlewares_1.ADMIN_SECRET_KEY, { expiresIn: "1hr" });
-        return res.status(200).json({ message: "Success", token: token });
+        return res
+            .status(200)
+            .json({ message: "Success", token: token, user: isUser });
     }
-    return res.json({ message: "Signup failed", token: null });
+    return res.json({ message: "Signup failed, try again", token: null });
 }));
 //Login Route: let existing users login
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -62,10 +64,12 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const isUser = yield db_1.Admin.findOne({ username, password });
         if (isUser) {
             const token = jsonwebtoken_1.default.sign({ id: isUser._id }, middlewares_1.ADMIN_SECRET_KEY, { expiresIn: "1hr" });
-            return res.status(200).json({ message: "Success", token: token });
+            return res
+                .status(200)
+                .json({ message: "Success", token: token, user: isUser });
         }
     }
-    return res.json({ message: "Invalid Details", token: null });
+    return res.json({ message: "Login failed, try again", token: null });
 }));
 //Create Course: let user create course
 router.post("/createCourse", middlewares_1.authenticateAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -118,17 +122,41 @@ router.put("/updateCourse/:Id", middlewares_1.authenticateAdmin, (req, res) => _
     }
 }));
 //Show All courses to user
-router.get("/courses", middlewares_1.authenticateAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/courses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const courses = yield db_1.Course.find({});
         if (courses.length > 0)
-            res.status(200).json(courses);
+            res.status(200).json({ courses: courses });
         else
-            res.status(200).json({ message: "No courses found" });
+            res.status(404).json({ courses: [] });
     }
     catch (error) {
         console.log("Failed to retrive courses form database");
         res.status(500).json({ message: "Failed to retrive courses" });
+    }
+}));
+const tokenCheck = zod_1.z.object({
+    authorization: zod_1.z.string().min(1),
+});
+router.get("/me", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const authorization = tokenCheck.safeParse(req.headers);
+    if (authorization.success) {
+        const token = authorization.data.authorization.split(" ")[1];
+        jsonwebtoken_1.default.verify(token, middlewares_1.ADMIN_SECRET_KEY, (err, payload) => __awaiter(void 0, void 0, void 0, function* () {
+            if (err)
+                return res.json({ admin: false });
+            if (!payload || typeof payload == "string") {
+                //payload should neither be undefined nor a string.
+                return res.json({ admin: false });
+            }
+            else {
+                const adminData = yield db_1.Admin.findOne({ _id: payload.id });
+                return res.json(adminData);
+            }
+        }));
+    }
+    else {
+        return res.json({ admin: false });
     }
 }));
 exports.default = router;

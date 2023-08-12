@@ -1,6 +1,5 @@
 import React from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { atomUser } from "../store/email";
 import { profile, logout, title } from "./content";
 import {
   IconButton,
@@ -9,13 +8,16 @@ import {
   Avatar,
   Button,
   AppBar,
+  Typography,
 } from "@mui/material";
 import "../style/Appbar.css";
 import { useNavigate } from "react-router-dom";
+import { atomUser } from "../store/atoms/user";
 
 export function Appbar() {
-  const user = useRecoilValue(atomUser);
-  const login = user ? <Authorized /> : <Unauthorized />;
+  const userValue = useRecoilValue(atomUser);
+  const login =
+    userValue.user.username != "" ? <Authorized /> : <Unauthorized />;
 
   return (
     <div>
@@ -34,6 +36,7 @@ export function Appbar() {
 
 //Component to Display User image
 function Authorized() {
+  const redirect = useNavigate();
   const setUser = useSetRecoilState(atomUser);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -47,12 +50,17 @@ function Authorized() {
 
   return (
     <div>
-      <IconButton onClick={handleMenu}>
-        <Avatar
-          variant="circular"
-          src="https://avatars.githubusercontent.com/u/69907734?v=4"
-        />
-      </IconButton>
+      <div className="appbar-admin">
+        <Typography variant="overline" fontSize={"16px"}>
+          Admin
+        </Typography>
+        <IconButton onClick={handleMenu}>
+          <Avatar
+            variant="circular"
+            src="https://avatars.githubusercontent.com/u/69907734?v=4"
+          />
+        </IconButton>
+      </div>
       <Menu
         anchorEl={anchorEl}
         anchorOrigin={{
@@ -63,7 +71,23 @@ function Authorized() {
         onClose={handleCLose}
       >
         <MenuItem onClick={handleCLose}>{profile}</MenuItem>
-        <MenuItem onClick={() => setUser("")}>{logout}</MenuItem>
+        <MenuItem
+          onClick={() => {
+            localStorage.setItem("token", "");
+            setUser({
+              isLoading: false,
+              user: {
+                username: "",
+                email: "",
+                contactNumber: 0,
+                password: "",
+              },
+            });
+            redirect("/admin");
+          }}
+        >
+          {logout}
+        </MenuItem>
       </Menu>
     </div>
   );
@@ -80,7 +104,7 @@ function Unauthorized() {
         color="info"
         variant="contained"
         className="Button"
-        onClick={() => redirect("/signup")}
+        onClick={() => redirect("admin/signup")}
       >
         Signup
       </Button>
@@ -88,7 +112,7 @@ function Unauthorized() {
         color="info"
         variant="contained"
         className="Button"
-        onClick={() => redirect("/login")}
+        onClick={() => redirect("admin/login")}
       >
         Login
       </Button>

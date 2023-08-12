@@ -1,3 +1,9 @@
+.appbar-admin {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .Appbar {
   display: flex;
   justify-content: space-between;

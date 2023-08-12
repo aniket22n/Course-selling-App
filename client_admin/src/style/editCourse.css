@@ -1,0 +1,36 @@
+/* No need, editCourse Component is using styling from 
+createCourse.css and courses.css files */
+
+.edit-main-div {
+  display: grid;
+  grid-template-columns: minmax(500px, 1fr) minmax(400px, 1fr);
+  grid-template-rows: 1fr;
+  gap: 20px;
+  height: calc(100vh - 120px);
+  align-content: center;
+
+  .edit-result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-left: solid black 2px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .edit-main-div {
+    height: none;
+    position: relative;
+    top: 120px;
+    gap: 20px;
+    grid-template-columns: 1fr; /* Change to a single column layout */
+
+    .edit-result {
+      display: flex;
+      border-top: solid black 2px;
+      padding: 20px;
+      border-left: none;
+      justify-content: center;
+    }
+  }
+}

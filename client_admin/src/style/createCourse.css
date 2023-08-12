@@ -1,0 +1,38 @@
+.main-div-addcourse {
+  display: grid;
+  justify-content: center;
+  height: calc(100vh - 100px);
+  align-items: center;
+
+  .main-container-addcourse {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+
+    .title-addcourse {
+      font-size: 40px;
+      font-weight: 900;
+      margin-bottom: 25px;
+    }
+
+    .sub-container-addcourse {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      padding: 20px;
+      border-top: solid black;
+      border-left: solid black;
+    }
+
+    .button-addcourse {
+      margin-top: 25px;
+      font-size: medium;
+      border-bottom: solid black;
+      border-right: solid black;
+      background-color: white;
+      color: black;
+    }
+  }
+}

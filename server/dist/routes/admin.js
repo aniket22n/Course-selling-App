@@ -17,28 +17,11 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const middlewares_1 = require("../middlewares");
 const db_1 = require("../db");
 const zod_1 = require("zod");
+const zod_2 = require("@aniket22n/common/dist/zod");
 const router = express_1.default.Router();
-const SignupZOD = zod_1.z.object({
-    username: zod_1.z.string().min(1).max(15),
-    email: zod_1.z.string().email(),
-    contactNumber: zod_1.z.number().min(1),
-    password: zod_1.z.string().min(1).max(15),
-});
-const LoginZOD = zod_1.z.object({
-    username: zod_1.z.string().min(1).max(15),
-    password: zod_1.z.string().min(1).max(15),
-});
-const CourseInput = zod_1.z.object({
-    title: zod_1.z.string().min(1),
-    description: zod_1.z.string().min(1),
-    price: zod_1.z.number().min(0),
-    image: zod_1.z.string().min(1),
-    published: zod_1.z.boolean(),
-});
-const PartialCourseInput = CourseInput.partial();
 //Signup Route: create new user
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userInput = SignupZOD.safeParse(req.body);
+    const userInput = zod_2.SignupParams.safeParse(req.body);
     if (userInput.success) {
         const Input = userInput.data;
         const username = Input.username;
@@ -52,13 +35,13 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         const token = jsonwebtoken_1.default.sign({ id: status._id }, middlewares_1.ADMIN_SECRET_KEY, { expiresIn: "1hr" });
         return res
             .status(200)
-            .json({ message: "Success", token: token, user: isUser });
+            .json({ message: "Success", token: token, user: status });
     }
     return res.json({ message: "Signup failed, try again", token: null });
 }));
 //Login Route: let existing users login
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userInput = LoginZOD.safeParse(req.body);
+    const userInput = zod_2.LoginParams.safeParse(req.body);
     if (userInput.success) {
         const { username, password } = userInput.data;
         const isUser = yield db_1.Admin.findOne({ username, password });
@@ -73,7 +56,7 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
 }));
 //Create Course: let user create course
 router.post("/createCourse", middlewares_1.authenticateAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const newCourse = CourseInput.safeParse(req.body);
+    const newCourse = zod_2.CourseParams.safeParse(req.body);
     if (!newCourse.success) {
         return res.status(400).json({ message: "Insufficient or Invalid data" });
     }
@@ -104,7 +87,7 @@ router.put("/updateCourse/:Id", middlewares_1.authenticateAdmin, (req, res) => _
     if (!isCourse) {
         return res.status(404).json({ message: "Course not found" });
     }
-    const couresInput = PartialCourseInput.safeParse(req.body);
+    const couresInput = zod_2.PartialCourseParams.safeParse(req.body);
     if (!couresInput.success) {
         return res.status(400).json({ message: "Invalid data" });
     }

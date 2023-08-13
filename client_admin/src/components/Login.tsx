@@ -3,17 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { atomUser } from "../store/atoms/user.tsx";
-import { z } from "zod";
 import axios from "axios";
 import { BASE_URL } from "./../config.ts";
 import "../style/LoginSignup.css";
-
-//Backend Validation with zod
-const LoginZOD = z.object({
-  username: z.string().min(1).max(15),
-  password: z.string().min(1).max(15),
-});
-type LoginType = z.infer<typeof LoginZOD>;
+import { LoginParams, LoginType } from "@aniket22n/common/dist/zod";
 
 //Main Function
 export function Login() {
@@ -26,7 +19,7 @@ export function Login() {
 
   //Function to hit admin/login Route on backend servers
   async function handleLogin() {
-    const requestBody = LoginZOD.safeParse({ username, password });
+    const requestBody = LoginParams.safeParse({ username, password });
     if (requestBody.success) {
       const body: LoginType = requestBody.data;
       const response = await axios.post(`${BASE_URL}/admin/login`, body);

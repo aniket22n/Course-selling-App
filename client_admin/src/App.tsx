@@ -17,7 +17,7 @@ import { atomUser } from "./store/atoms/user";
 import { useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "./config";
-import { z } from "zod";
+import { SignupParams, SignupType } from "@aniket22n/common/dist/zod";
 
 function App() {
   return (
@@ -47,14 +47,9 @@ function App() {
   );
 }
 
-//Backend Validation with zod
-const TokenValiditiy = z.object({
-  username: z.string().min(1).max(15),
-  email: z.string().email(),
-  contactNumber: z.number().min(1),
-  password: z.string().min(1).max(15),
-});
-type TokenValType = z.infer<typeof TokenValiditiy>;
+//from @aniket22n/common package
+const TokenValiditiy = SignupParams;
+type TokenValType = SignupType;
 
 function InitUser() {
   const redirect = useNavigate();

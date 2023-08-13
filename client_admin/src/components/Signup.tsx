@@ -2,20 +2,11 @@ import { Button, Card, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import { z } from "zod";
 import { useSetRecoilState } from "recoil";
 import { atomUser } from "../store/atoms/user";
 import { BASE_URL } from "./../config";
 import "./../style/LoginSignup.css";
-
-//Backend Validation with zod
-const SignupZOD = z.object({
-  username: z.string().min(1).max(15),
-  email: z.string().email(),
-  contactNumber: z.number().min(1),
-  password: z.string().min(1).max(15),
-});
-type SignupType = z.infer<typeof SignupZOD>;
+import { SignupParams, SignupType } from "@aniket22n/common/dist/zod";
 
 //Main Function
 export function Signup() {
@@ -31,7 +22,7 @@ export function Signup() {
   //Function to hit admin/signup Route on backend server
   async function handleSignup() {
     const input = { username, email, contactNumber, password };
-    const requestBody = SignupZOD.safeParse(input);
+    const requestBody = SignupParams.safeParse(input);
     if (requestBody.success) {
       const body: SignupType = requestBody.data;
       const response = await axios.post(`${BASE_URL}/admin/signup`, body);

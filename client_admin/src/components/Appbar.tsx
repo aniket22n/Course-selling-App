@@ -13,6 +13,7 @@ import {
 import "../style/Appbar.css";
 import { useNavigate } from "react-router-dom";
 import { atomUser } from "../store/atoms/user";
+import { userUsername } from "../store/selectors/user";
 
 export function Appbar() {
   const userValue = useRecoilValue(atomUser);
@@ -36,6 +37,7 @@ export function Appbar() {
 
 //Component to Display User image
 function Authorized() {
+  const userName = useRecoilValue(userUsername);
   const redirect = useNavigate();
   const setUser = useSetRecoilState(atomUser);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -52,13 +54,10 @@ function Authorized() {
     <div>
       <div className="appbar-admin">
         <Typography variant="overline" fontSize={"16px"}>
-          Admin
+          Admin {userName}
         </Typography>
         <IconButton onClick={handleMenu}>
-          <Avatar
-            variant="circular"
-            src="https://avatars.githubusercontent.com/u/69907734?v=4"
-          />
+          <Avatar variant="circular" />
         </IconButton>
       </div>
       <Menu

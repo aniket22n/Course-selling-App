@@ -8,14 +8,10 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userUsername } from "../store/selectors/user";
 import { useNavigate } from "react-router-dom";
 import { atomCourse } from "../store/atoms/course";
+import { CourseParams } from "@aniket22n/common/dist/zod";
 
 // Define your validation schema and type
-const CourseInput = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-  price: z.number().min(1),
-  image: z.string().min(1),
-  published: z.boolean(),
+const CourseInput = CourseParams.extend({
   _id: z.string(),
 });
 type CourseType = z.infer<typeof CourseInput>;

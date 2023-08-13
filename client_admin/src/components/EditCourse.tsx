@@ -11,20 +11,10 @@ import {
 } from "@mui/material";
 import { atomCourse } from "../store/atoms/course";
 import { useState } from "react";
-import { z } from "zod";
 import axios from "axios";
 import { BASE_URL } from "../config";
 import "../style/editCourse.css";
-
-//Backend Validation with zod
-const CourseData = z.object({
-  title: z.string().min(1).max(20),
-  description: z.string().min(1).max(50),
-  price: z.number().min(0),
-  image: z.string().min(1),
-  published: z.boolean(),
-});
-type CourseType = z.infer<typeof CourseData>;
+import { CourseParams, CourseType } from "@aniket22n/common/dist/zod";
 
 export function EditCourse() {
   return (
@@ -50,7 +40,7 @@ function Update() {
     var val: boolean = false;
     if (publish == "1") val = true;
 
-    const requestBody = CourseData.safeParse({
+    const requestBody = CourseParams.safeParse({
       title: title || course.title,
       description: description || course.description,
       price: price || course.price,

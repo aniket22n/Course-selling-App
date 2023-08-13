@@ -7,22 +7,22 @@ exports.handleInvalidRoutes = exports.authenticateUser = exports.authenticateAdm
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const zod_1 = require("zod");
 require("dotenv").config();
+const tokenCheck = zod_1.z.object({
+    authorization: zod_1.z.string().min(1),
+});
 //after compilation .env file is not getting added in dist
 //Backup Key is temp solution for that
 const USER_KEY = process.env.USER_KEY || "Backup Key for USER ";
 exports.USER_SECRET_KEY = USER_KEY;
 const ADMIN_KEY = process.env.ADMIN_KEY || "Backup Key for ADMIN";
 exports.ADMIN_SECRET_KEY = ADMIN_KEY;
-const tokenCheck = zod_1.z.object({
-    authorization: zod_1.z.string().min(1),
-});
 //autharization for admin
 const authenticateAdmin = (req, res, next) => {
     const authHeader = tokenCheck.safeParse(req.headers);
     if (!authHeader.success) {
         return res.status(401).json({ message: "Login or signup" });
     }
-    const token = authHeader.data.authorization.split(' ')[1];
+    const token = authHeader.data.authorization.split(" ")[1];
     jsonwebtoken_1.default.verify(token, exports.ADMIN_SECRET_KEY, (err, payload) => {
         if (err) {
             return res.status(403).json({ message: "Login or signup" });
@@ -42,7 +42,7 @@ const authenticateUser = (req, res, next) => {
     if (!authHeader.success) {
         return res.status(401).json({ message: "Login or signup" });
     }
-    const token = authHeader.data.authorization.split(' ')[1];
+    const token = authHeader.data.authorization.split(" ")[1];
     jsonwebtoken_1.default.verify(token, exports.USER_SECRET_KEY, (err, payload) => {
         if (err) {
             return res.status(403).json({ message: "Login or signup" });
@@ -60,6 +60,6 @@ exports.authenticateUser = authenticateUser;
 const handleInvalidRoutes = (req, res, next) => {
     // If no route has matched the request so far, this middleware will be executed
     // Respond with a "404 Not Found" error
-    res.status(404).json({ message: 'Route not found' });
+    res.status(404).json({ message: "Route not found" });
 };
 exports.handleInvalidRoutes = handleInvalidRoutes;

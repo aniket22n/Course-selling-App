@@ -10,20 +10,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { z } from "zod";
 import axios from "axios";
 import { BASE_URL } from "./../config.ts";
 import "../style/createCourse.css";
-
-//Backend Validation with zod
-const CourseData = z.object({
-  title: z.string().min(1).max(20),
-  description: z.string().min(1).max(50),
-  price: z.number().min(0),
-  image: z.string().min(1),
-  published: z.boolean(),
-});
-type CourseType = z.infer<typeof CourseData>;
+import { CourseParams, CourseType } from "@aniket22n/common/dist/zod";
 
 //Main Function
 export function CreateCourse() {
@@ -38,7 +28,7 @@ export function CreateCourse() {
   //Function to hit admin/login Route on backend servers
   async function createCourse() {
     var val: boolean = published == "1" ? true : false;
-    const requestBody = CourseData.safeParse({
+    const requestBody = CourseParams.safeParse({
       title: title,
       description: description,
       price: price,

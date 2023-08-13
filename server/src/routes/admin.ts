@@ -7,38 +7,22 @@ import {
 } from "../middlewares";
 import { Admin, Course } from "../db";
 import { z } from "zod";
+import {
+  SignupParams,
+  LoginParams,
+  CourseParams,
+  PartialCourseParams,
+  CourseType,
+  LoginType,
+  PartialCourseType,
+  SignupType,
+} from "@aniket22n/common/dist/zod";
 
 const router = express.Router();
 
-const SignupZOD = z.object({
-  username: z.string().min(1).max(15),
-  email: z.string().email(),
-  contactNumber: z.number().min(1),
-  password: z.string().min(1).max(15),
-});
-type SignupType = z.infer<typeof SignupZOD>;
-
-const LoginZOD = z.object({
-  username: z.string().min(1).max(15),
-  password: z.string().min(1).max(15),
-});
-type LoginType = z.infer<typeof LoginZOD>;
-
-const CourseInput = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-  price: z.number().min(0),
-  image: z.string().min(1),
-  published: z.boolean(),
-});
-type CourseType = z.infer<typeof CourseInput>;
-
-const PartialCourseInput = CourseInput.partial();
-type PartialCourseType = z.infer<typeof PartialCourseInput>;
-
 //Signup Route: create new user
 router.post("/signup", async (req, res) => {
-  const userInput = SignupZOD.safeParse(req.body);
+  const userInput = SignupParams.safeParse(req.body);
   if (userInput.success) {
     const Input: SignupType = userInput.data;
     const username = Input.username;
@@ -54,14 +38,14 @@ router.post("/signup", async (req, res) => {
     const token = jwt.sign({ id: status._id }, KEY, { expiresIn: "1hr" });
     return res
       .status(200)
-      .json({ message: "Success", token: token, user: isUser });
+      .json({ message: "Success", token: token, user: status });
   }
   return res.json({ message: "Signup failed, try again", token: null });
 });
 
 //Login Route: let existing users login
 router.post("/login", async (req, res) => {
-  const userInput = LoginZOD.safeParse(req.body);
+  const userInput = LoginParams.safeParse(req.body);
   if (userInput.success) {
     const { username, password }: LoginType = userInput.data;
     const isUser = await Admin.findOne({ username, password });
@@ -78,7 +62,7 @@ router.post("/login", async (req, res) => {
 
 //Create Course: let user create course
 router.post("/createCourse", authenticateAdmin, async (req, res) => {
-  const newCourse = CourseInput.safeParse(req.body);
+  const newCourse = CourseParams.safeParse(req.body);
   if (!newCourse.success) {
     return res.status(400).json({ message: "Insufficient or Invalid data" });
   }
@@ -112,7 +96,7 @@ router.put("/updateCourse/:Id", authenticateAdmin, async (req, res) => {
     return res.status(404).json({ message: "Course not found" });
   }
 
-  const couresInput = PartialCourseInput.safeParse(req.body);
+  const couresInput = PartialCourseParams.safeParse(req.body);
   if (!couresInput.success) {
     return res.status(400).json({ message: "Invalid data" });
   }

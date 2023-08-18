@@ -12,10 +12,6 @@ import {
   LoginParams,
   CourseParams,
   PartialCourseParams,
-  CourseType,
-  LoginType,
-  PartialCourseType,
-  SignupType,
 } from "@aniket22n/common/dist/zod";
 
 const router = express.Router();
@@ -24,16 +20,15 @@ const router = express.Router();
 router.post("/signup", async (req, res) => {
   const userInput = SignupParams.safeParse(req.body);
   if (userInput.success) {
-    const Input: SignupType = userInput.data;
-    const username = Input.username;
-    const password = Input.password;
+    const username = userInput.data.username;
+    const password = userInput.data.password;
 
     const isUser = await Admin.findOne({ username, password });
     if (isUser) {
       return res.json({ message: "Admin already exists", token: null });
     }
 
-    const newAdmin = new Admin(Input);
+    const newAdmin = new Admin(userInput.data);
     const status = await newAdmin.save();
     const token = jwt.sign({ id: status._id }, KEY, { expiresIn: "1hr" });
     return res
@@ -47,8 +42,7 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   const userInput = LoginParams.safeParse(req.body);
   if (userInput.success) {
-    const { username, password }: LoginType = userInput.data;
-    const isUser = await Admin.findOne({ username, password });
+    const isUser = await Admin.findOne(userInput.data);
 
     if (isUser) {
       const token = jwt.sign({ id: isUser._id }, KEY, { expiresIn: "1hr" });
@@ -67,8 +61,7 @@ router.post("/createCourse", authenticateAdmin, async (req, res) => {
     return res.status(400).json({ message: "Insufficient or Invalid data" });
   }
 
-  const courseData: CourseType = newCourse.data;
-  const isCourse = await Course.findOne(courseData);
+  const isCourse = await Course.findOne(newCourse.data);
   if (isCourse) {
     return res.status(400).json({
       message: "This course already exists",
@@ -76,7 +69,7 @@ router.post("/createCourse", authenticateAdmin, async (req, res) => {
     });
   }
 
-  const course = new Course(courseData);
+  const course = new Course(newCourse.data);
   try {
     const status = await course.save();
     res
@@ -101,7 +94,7 @@ router.put("/updateCourse/:Id", authenticateAdmin, async (req, res) => {
     return res.status(400).json({ message: "Invalid data" });
   }
 
-  const updatedCourse: PartialCourseType = {
+  const updatedCourse = {
     ...isCourse.toObject(),
     ...couresInput.data,
   };
@@ -121,7 +114,7 @@ router.put("/updateCourse/:Id", authenticateAdmin, async (req, res) => {
 //Show All courses to user
 router.get("/courses", async (req, res) => {
   try {
-    const courses: CourseType[] = await Course.find({});
+    const courses = await Course.find({});
     if (courses.length > 0) res.status(200).json({ courses: courses });
     else res.status(404).json({ courses: [] });
   } catch (error) {

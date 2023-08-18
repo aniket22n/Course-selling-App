@@ -6,7 +6,7 @@ import { atomUser } from "../store/atoms/user.tsx";
 import axios from "axios";
 import { BASE_URL } from "./../config.ts";
 import "../style/LoginSignup.css";
-import { LoginParams, LoginType } from "@aniket22n/common/dist/zod";
+import { LoginType } from "@aniket22n/common/dist/zod";
 
 //Main Function
 export function Login() {
@@ -19,19 +19,16 @@ export function Login() {
 
   //Function to hit admin/login Route on backend servers
   async function handleLogin() {
-    const requestBody = LoginParams.safeParse({ username, password });
-    if (requestBody.success) {
-      const body: LoginType = requestBody.data;
-      const response = await axios.post(`${BASE_URL}/admin/login`, body);
-      if (response.data.token) {
-        localStorage.setItem("token", `Bearer ${response.data.token}`);
-        setUser({
-          isLoading: false,
-          user: response.data.user,
-        });
-        redirect("/admin");
-      } else alert(response.data.message);
-    } else return alert("Invalid Details");
+    const requestBody: LoginType = { username, password };
+    const response = await axios.post(`${BASE_URL}/admin/login`, requestBody);
+    if (response.data.token) {
+      localStorage.setItem("token", `Bearer ${response.data.token}`);
+      setUser({
+        isLoading: false,
+        user: response.data.user,
+      });
+      redirect("/admin");
+    } else alert(response.data.message);
   }
 
   //Login Component

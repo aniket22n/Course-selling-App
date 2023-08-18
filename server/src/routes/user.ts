@@ -4,12 +4,7 @@ import { User, Course } from "../db/index";
 import { z } from "zod";
 import { USER_SECRET_KEY, authenticateUser } from "../middlewares";
 //Created public npm package for zod
-import {
-  SignupParams,
-  LoginParams,
-  LoginType,
-  SignupType,
-} from "@aniket22n/common/dist/zod";
+import { SignupParams, LoginParams } from "@aniket22n/common/dist/zod";
 
 const router = express.Router();
 
@@ -20,8 +15,7 @@ router.post("/signup", async (req, res) => {
     return res.status(401).json({ message: "invalid details" });
   }
 
-  const { username, email, contactNumber, password }: SignupType =
-    userInput.data;
+  const { username, email, contactNumber, password } = userInput.data;
   const isUser = await User.findOne({ username, password });
   if (isUser) {
     return res.status(400).json({ message: "user already exists" });
@@ -49,8 +43,7 @@ router.post("/login", async (req, res) => {
     return res.status(401).json({ message: "invalid details" });
   }
 
-  const { username, password }: LoginType = userInput.data;
-  const isUser = await User.findOne({ username, password });
+  const isUser = await User.findOne(userInput.data);
 
   if (!isUser) {
     res.status(401).json({ message: "incorrect username or password" });

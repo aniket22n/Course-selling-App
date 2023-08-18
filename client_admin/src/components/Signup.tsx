@@ -6,7 +6,7 @@ import { useSetRecoilState } from "recoil";
 import { atomUser } from "../store/atoms/user";
 import { BASE_URL } from "./../config";
 import "./../style/LoginSignup.css";
-import { SignupParams, SignupType } from "@aniket22n/common/dist/zod";
+import { SignupType } from "@aniket22n/common/dist/zod";
 
 //Main Function
 export function Signup() {
@@ -21,20 +21,22 @@ export function Signup() {
 
   //Function to hit admin/signup Route on backend server
   async function handleSignup() {
-    const input = { username, email, contactNumber, password };
-    const requestBody = SignupParams.safeParse(input);
-    if (requestBody.success) {
-      const body: SignupType = requestBody.data;
-      const response = await axios.post(`${BASE_URL}/admin/signup`, body);
-      if (response.data.token) {
-        localStorage.setItem("token", `Bearer ${response.data.token}`);
-        setUser({
-          isLoading: false,
-          user: response.data.user,
-        });
-        redirect("/admin");
-      } else alert(response.data.message);
-    } else alert("Invalid Details");
+    const requestBody: SignupType = {
+      username,
+      email,
+      contactNumber,
+      password,
+    };
+
+    const response = await axios.post(`${BASE_URL}/admin/signup`, requestBody);
+    if (response.data.token) {
+      localStorage.setItem("token", `Bearer ${response.data.token}`);
+      setUser({
+        isLoading: false,
+        user: response.data.user,
+      });
+      redirect("/admin");
+    } else alert(response.data.message);
   }
 
   //Signup Component

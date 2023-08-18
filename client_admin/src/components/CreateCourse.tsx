@@ -13,7 +13,7 @@ import { useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "./../config.ts";
 import "../style/createCourse.css";
-import { CourseParams, CourseType } from "@aniket22n/common/dist/zod";
+import { CourseType } from "@aniket22n/common/dist/zod";
 
 //Main Function
 export function CreateCourse() {
@@ -25,25 +25,23 @@ export function CreateCourse() {
   const [image, setImage] = useState("");
   const [price, setPrice] = useState(0);
   const [published, setPublish] = useState("");
+
   //Function to hit admin/login Route on backend servers
   async function createCourse() {
     var val: boolean = published == "1" ? true : false;
-    const requestBody = CourseParams.safeParse({
+    const requestBody: CourseType = {
       title: title,
       description: description,
       price: price,
       image: image,
       published: val,
+    };
+    await axios.post(`${BASE_URL}/admin/createCourse`, requestBody, {
+      headers: {
+        authorization: localStorage.getItem("token"),
+      },
     });
-    if (requestBody.success) {
-      const body: CourseType = requestBody.data;
-      await axios.post(`${BASE_URL}/admin/createCourse`, body, {
-        headers: {
-          authorization: localStorage.getItem("token"),
-        },
-      });
-      redirect("/admin/courses");
-    } else return alert("Invalid Details...");
+    redirect("/admin/courses");
   }
 
   //Login Component

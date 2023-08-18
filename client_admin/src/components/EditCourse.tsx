@@ -14,7 +14,7 @@ import { useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../config";
 import "../style/editCourse.css";
-import { CourseParams, CourseType } from "@aniket22n/common/dist/zod";
+import { CourseType } from "@aniket22n/common/dist/zod";
 
 export function EditCourse() {
   return (
@@ -40,32 +40,30 @@ function Update() {
     var val: boolean = false;
     if (publish == "1") val = true;
 
-    const requestBody = CourseParams.safeParse({
+    const requestBody: CourseType = {
       title: title || course.title,
       description: description || course.description,
       price: price || course.price,
       image: image || course.image,
       published: val,
-    });
-    if (requestBody.success) {
-      const body: CourseType = requestBody.data;
-      const response = await axios.put(
-        `${BASE_URL}/admin/updateCourse/${course._id}`,
-        body,
-        {
-          headers: {
-            authorization: localStorage.getItem("token"),
-          },
-        }
-      );
-      if (response.data) {
-        alert(response.data.message);
-        setCourse({
-          isLoading: false,
-          course: response.data.updatedCourse,
-        });
+    };
+
+    const response = await axios.put(
+      `${BASE_URL}/admin/updateCourse/${course._id}`,
+      requestBody,
+      {
+        headers: {
+          authorization: localStorage.getItem("token"),
+        },
       }
-    } else alert(requestBody.error);
+    );
+    if (response.data) {
+      alert(response.data.message);
+      setCourse({
+        isLoading: false,
+        course: response.data.updatedCourse,
+      });
+    }
   }
   return (
     <div
